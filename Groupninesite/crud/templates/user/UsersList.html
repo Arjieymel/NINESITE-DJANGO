@@ -1,0 +1,95 @@
+{% extends "layout/base.html" %} 
+
+{% block 'title' %}Gender List{% endblock 'title' %}
+
+{% block 'content' %} 
+{% include "include/Sidebar.html" %} 
+
+
+<!-- Search bar -->
+<!-- Search Bar Container (Responsive and Aligned) -->
+<div class="p-4 sm:ml-64 overflow-x-auto mt-9"> <!-- Added mt-8 to give space from top -->
+  <div>
+    <form method="get" class="flex flex-row items-center gap-2 p-3 shadow rounded-md max-w-md">
+      <input
+        type="text"
+        name="search"
+        placeholder="Search fullname..."
+        value="{{ request.GET.search }}"
+        class="flex-none w-[150px] px-3 py-2 border border-b-blue-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        aria-label="Search users"
+      />
+      <button
+        type="submit"
+        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        Search
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="p-4 sm:ml-64 overflow-x-auto">
+  <table class="table-fixed w-full text-sm text-left text-gray-500 dark:text-gray-400 border-collapse">
+    <thead class="text-sm text-black uppercase dark:bg-gray-700 dark:text-gray-400">
+      <tr>
+        <th class="w-32 px-4 py-3 border-b border-gray-300">FullName</th>
+        <th class="w-24 px-4 py-3 border-b border-gray-300">Gender</th>
+        <th class="w-28 px-4 py-3 border-b border-gray-300">BirthDate</th>
+        <th class="w-40 px-4 py-3 border-b border-gray-300">Address</th>
+        <th class="w-32 px-4 py-3 border-b border-gray-300">Contact No.</th>
+        <th class="w-56 px-4 py-3 border-b border-gray-300">Email</th>
+        <th class="w-24 px-4 py-3 border-b border-gray-300">Action</th>
+      </tr>
+    </thead>
+    <tbody class="text-xs text-black">
+      {% for user in userObj %}
+      <tr class="hover:bg-gray-100">
+        <td class="px-4 py-2 text-sm border-b border-gray-200">{{ user.full_name }}</td>
+        <td class="px-4 py-2 text-sm border-b border-gray-200">{{ user.gender.gender }}</td>
+        <td class="px-4 py-2 text-sm border-b border-gray-200">{{ user.birth_date }}</td>
+        <td class="px-4 py-2 text-sm border-b border-gray-200">{{ user.address }}</td>
+        <td class="px-4 py-2 text-sm border-b border-gray-200">{{ user.contact_number }}</td>
+        <td class="px-4 py-2 text-sm border-b border-gray-200">{{ user.email }}</td>
+        <td class="px-4 py-2 text-sm border-b border-gray-200">
+          <div class="inline-flex">
+            <a href="/edit/user/{{ user.user_id }}"
+               class="bg-green-400 px-2 py-2 font-medium rounded-l text-white hover:bg-green-600">Edit</a>
+            <a href="/delete/user/{{ user.user_id }}"
+               class="bg-red-500 px-2 py-2 font-medium rounded-r text-white hover:bg-red-700 ml-1">Delete</a>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="text-center py-4">No users found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+<div class="flex justify-end mt-4 mb-8">
+  {% if userObj.has_previous %}
+    <a href="?search={{ search_query }}&page={{ userObj.previous_page_number }}"
+       class="px-3 py-1 mx-1 border border-gray-300 rounded hover:bg-gray-100">Previous</a>
+  {% endif %}
+
+  {% for num in userObj.paginator.page_range %}
+    {% if userObj.number == num %}
+      <span class="px-3 py-1 mx-1 bg-blue-500 text-white rounded">{{ num }}</span>
+    {% else %}
+      <a href="?search={{ search_query }}&page={{ num }}"
+         class="px-3 py-1 mx-1 border border-gray-300 rounded hover:bg-gray-100">{{ num }}</a>
+    {% endif %}
+  {% endfor %}
+
+  {% if userObj.has_next %}
+    <a href="?search={{ search_query }}&page={{ userObj.next_page_number }}"
+       class="px-3 py-1 mx-1 border border-gray-300 rounded hover:bg-gray-100">Next</a>
+  {% endif %}
+</div>
+
+
+
+{% endblock 'content' %}

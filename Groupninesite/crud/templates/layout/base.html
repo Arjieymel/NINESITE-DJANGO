@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static '/css/output.css' %}">
+    <title>{% block 'title' %}{% endblock 'title' %}</title>
+  </head>
+  <body class="bg-emerald-50">
+    <p class="bg-amber-600">r</p>
+
+    {% block 'content' %}{% endblock 'content' %}
+    <script src="{%static 'js/auto_hide_toast.js'%}"></script>
+    
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const toggleButton = document.querySelector('[data-drawer-toggle="logo-sidebar"]');
+    const sidebar = document.getElementById("logo-sidebar");
+
+    toggleButton.addEventListener("click", () => {
+      sidebar.classList.toggle("-translate-x-full");
+    });
+  });
+</script>
+
+    
+  </body>
+</html>
