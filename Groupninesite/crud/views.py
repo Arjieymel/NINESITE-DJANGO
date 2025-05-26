@@ -144,8 +144,6 @@ def add_user(request):
                 'contact_number': contact_number,
                 'email': email,
                 'username': username,
-                'password': password,
-                'confirm_password': confirm_password
 
             }
 
@@ -210,6 +208,15 @@ def edit_user(request, userId):
             username = request.POST.get('username')
             password = request.POST.get('password')
 
+            # Check if username is already used by another user
+            if Users.objects.filter(username=username).exclude(pk=userId).exists():
+                messages.error(request, 'Username already exists. Please choose a different one.')
+                genderObj = Genders.objects.all()
+                return render(request, 'user/EditUser.html', {
+                    'user': userobj,
+                    'gender': genderObj
+                })
+
             gender_instance = get_object_or_404(Genders, pk=gender_id)
 
             userobj.full_name = full_name
@@ -222,7 +229,7 @@ def edit_user(request, userId):
             userobj.password = password
 
             userobj.save()
-            messages.success(request, 'User Updated Succesfully!')
+            messages.success(request, 'User Updated Successfully!')
             return redirect('/users/list')
 
         else:
@@ -237,7 +244,7 @@ def edit_user(request, userId):
         return render(request, 'user/EditUser.html', data)
 
     except Exception as e:
-        return HttpResponse(f"error {e}")
+        return HttpResponse(f"Error: {e}")
 
 @login_required_custom
 @never_cache
