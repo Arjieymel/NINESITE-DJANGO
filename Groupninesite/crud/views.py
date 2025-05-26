@@ -134,21 +134,38 @@ def add_user(request):
             email = request.POST.get('email')
             username = request.POST.get('username')
             password = request.POST.get('password')
+            confirm_password = request.POST.get('confirm_password')
 
-            # Validate required fields
-            if not all([full_name, gender_id, birth_date, address, contact_number, email, password]):
+            previous_data = {
+                'full_name': full_name,
+                'gender': gender_id,
+                'birth_date': birth_date,
+                'address': address,
+                'contact_number': contact_number,
+                'email': email,
+                'username': username,
+                'password': password,
+                'confirm_password': confirm_password
+
+            }
+
+            if not all([full_name, gender_id, birth_date, address, contact_number, email, username, password]):
                 messages.error(request, 'All fields are required.')
-                return redirect(request.path)
+                genders = Genders.objects.all()
+                return render(request, 'user/AddUser.html', {'genders': genders, 'previous_data': previous_data})
 
-            # ✅ Convert gender_id to Genders instance
+            if password != confirm_password:
+                messages.error(request, 'Password and Confirm Password do not match!')
+                genders = Genders.objects.all()
+                return render(request, 'user/AddUser.html', {'genders': genders, 'previous_data': previous_data})
+
             try:
                 gender = Genders.objects.get(pk=gender_id)
             except Genders.DoesNotExist:
                 messages.error(request, 'Invalid gender selected.')
-                return redirect(request.path)
+                genders = Genders.objects.all()
+                return render(request, 'user/AddUser.html', {'genders': genders, 'previous_data': previous_data})
 
-
-            # ✅ Create user
             Users.objects.create(
                 full_name=full_name,
                 gender=gender,
@@ -158,19 +175,20 @@ def add_user(request):
                 email=email,
                 username=username,
                 password=make_password(password)
-            ).save()
-            messages.success(request, 'Gender Added Succesfully!') 
-            
+            )
 
+            messages.success(request, 'User added successfully!')
             return redirect('/users/list')
 
         else:
             genders = Genders.objects.all()
+            return render(request, 'user/AddUser.html', {'genders': genders})
 
-        return render(request, 'user/AddUser.html', {'genders': genders})  # <-- make sure template is correct
     except Exception as e:
         messages.error(request, f"Error occurred during user creation: {e}")
-        return redirect(request.path)
+        genders = Genders.objects.all()
+        return render(request, 'user/AddUser.html', {'genders': genders, 'previous_data': request.POST})
+
 
 @login_required_custom
 @never_cache
@@ -204,7 +222,7 @@ def edit_user(request, userId):
             userobj.password = password
 
             userobj.save()
-
+            messages.success(request, 'User Updated Succesfully!')
             return redirect('/users/list')
 
         else:
